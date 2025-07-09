@@ -1,8 +1,10 @@
-streamlit
-pandas
 scikit-learn
 nltk
 textblob
 matplotlib
 seaborn
 joblib
+streamlit==1.38.0
+pandas==2.2.2
+numpy==1.26.4
+tensorflow==2.17.0
