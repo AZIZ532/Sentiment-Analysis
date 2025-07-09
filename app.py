@@ -1,146 +1,154 @@
-import streamlit as st
-import pandas as pd
-import json
+from flask import Flask, render_template, request, jsonify, abort
+import os
 import logging
 from sentiment_model import SentimentAnalyzer
-import streamlit.components.v1 as components
+import pandas as pd
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+# Initialize Flask app
+app = Flask(__name__)
+app.secret_key = os.environ.get("SESSION_SECRET", "default-secret-key")
+
 # Initialize the sentiment analyzer
 analyzer = SentimentAnalyzer()
 
-# App title and layout
-st.set_page_config(page_title="Sentiment Analysis", layout="wide")
-st.title("Sentiment Analysis Dashboard")
+@app.route('/')
+def index():
+    """Render main page"""
+    return render_template('index.html')
 
-# Single text analysis
-st.header("Analyze Single Text")
-with st.form("text_analysis"):
-    text = st.text_area("Enter text for sentiment analysis", height=150, placeholder="Type your text here...")
-    submit_text = st.form_submit_button("Analyze")
-    if submit_text:
-        try:
-            if not text.strip():
-                st.error("Please enter some text")
-            else:
-                result = analyzer.analyze_text(text)
-                st.subheader("Analysis Results")
-                col1, col2 = st.columns([2, 1])
-                with col1:
-                    st.json(result)
-                with col2:
-                    st.subheader("Sentiment Scores")
-                    components.html(
-                        f"""
-                        <canvas id="chart"></canvas>
-                        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
-                        <script>
-                            new Chart(document.getElementById('chart'), {{
-                                type: 'bar',
-                                data: {json.dumps(result['visualization'])},
-                                options: {{ 
-                                    responsive: true, 
-                                    scales: {{ y: {{ beginAtZero: true, max: 1 }} }},
-                                    plugins: {{ legend: {{ display: false }} }}
-                                }}
-                            }});
-                        </script>
-                        """,
-                        height=300
-                    )
-        except Exception as e:
-            logger.error(f"Error analyzing text: {str(e)}")
-            st.error(f"Error analyzing text: {str(e)}")
-
-# Batch CSV analysis
-st.header("Batch Analyze CSV")
-uploaded_file = st.file_uploader("Upload a CSV file", type="csv", help="Upload a CSV with text data")
-if uploaded_file:
+@app.route('/analyze', methods=['POST'])
+def analyze():
+    """Analyze text for sentiment"""
     try:
-        df = pd.read_csv(uploaded_file)
-        columns = df.columns.tolist()
+        text = request.form.get('text', '')
         
-        # Column selection
-        st.subheader("Select Columns")
-        col1, col2 = st.columns(2)
-        with col1:
-            text_columns = [col for col in columns if any(term in col.lower() for term in ['text', 'comment', 'review'])] or columns
-            text_column = st.selectbox("Text column", text_columns, help="Column containing text to analyze")
-        with col2:
-            date_columns = [col for col in columns if any(term in col.lower() for term in ['date', 'time'])] or columns
-            date_column = st.selectbox("Date column (optional)", ["None"] + date_columns, help="Column with dates for trend analysis")
-            date_column = None if date_column == "None" else date_column
+        if not text:
+            return jsonify({'error': 'No text provided'})
+        
+        # Analyze text
+        results = analyzer.analyze_text(text)
+        
+        return jsonify(results)
+    except Exception as e:
+        logger.error(f"Error analyzing text: {str(e)}")
+        return jsonify({'error': f'Error analyzing text: {str(e)}'})
 
-        if st.button("Analyze CSV", key="analyze_csv"):
-            uploaded_file.seek(0)  # Reset file pointer
-            with st.spinner("Analyzing CSV..."):
-                results = analyzer.batch_analyze(uploaded_file, text_column, date_column)
-            st.subheader("Batch Analysis Results")
-            col1, col2 = st.columns([2, 1])
-            with col1:
-                st.json(results)
-            with col2:
-                st.subheader("Sentiment Distribution")
-                components.html(
-                    f"""
-                    <canvas id="agg-chart"></canvas>
-                    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
-                    <script>
-                        new Chart(document.getElementById('agg-chart'), {{
-                            type: 'pie',
-                            data: {json.dumps(results['aggregate_visualization'])},
-                            options: {{ 
-                                responsive: true,
-                                plugins: {{ legend: {{ position: 'right' }} }}
-                            }}
-                        }});
-                    </script>
-                    """,
-                    height=300
-                )
-            # Time trend chart
-            if results.get('time_trend_data'):
-                st.subheader("Sentiment Trends Over Time")
-                components.html(
-                    f"""
-                    <canvas id="trend-chart"></canvas>
-                    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
-                    <script>
-                        new Chart(document.getElementById('trend-chart'), {{
-                            type: 'line',
-                            data: {json.dumps(results['time_trend_data']['score_trends'])},
-                            options: {{ 
-                                responsive: true,
-                                scales: {{ y: {{ beginAtZero: true, max: 1 }} }}
-                            }}
-                        }});
-                    </script>
-                    """,
-                    height=400
-                )
+@app.route('/batch-analyze', methods=['POST'])
+def batch_analyze():
+    """Analyze multiple text samples for sentiment"""
+    try:
+        file = request.files.get('file')
+        
+        if not file:
+            return jsonify({'error': 'No file provided'})
+        
+        # Check file extension
+        if not file.filename.endswith('.csv'):
+            return jsonify({'error': 'Please upload a CSV file'})
+        
+        # If column selection is provided
+        text_column = request.form.get('text_column', None)
+        date_column = request.form.get('date_column', None)
+        
+        # Analyze file
+        results = analyzer.batch_analyze(file, text_column, date_column)
+        
+        return jsonify(results)
     except Exception as e:
         logger.error(f"Error batch analyzing: {str(e)}")
-        st.error("Error: Please upload a valid CSV file")
+        return jsonify({'error': f'Error batch analyzing: {str(e)}'})
 
-# Feedback form
-st.header("Submit Feedback")
-with st.form("feedback"):
-    feedback_text = st.text_input("Feedback text", placeholder="Enter text you analyzed")
-    sentiment = st.selectbox("Correct sentiment", ["Positive", "Neutral", "Negative"], help="What should the sentiment be?")
-    submit_feedback = st.form_submit_button("Submit")
-    if submit_feedback:
-        try:
-            if not feedback_text or not sentiment:
-                st.error("Please provide both text and sentiment")
-            else:
-                success = analyzer.store_feedback(feedback_text, sentiment)
-                if success:
-                    st.success("Feedback submitted successfully")
-                else:
-                    st.error("Error storing feedback")
-        except Exception as e:
-            logger.error(f"Error storing feedback: {str(e)}")
-            st.error(f"Error storing feedback: {str(e)}")
+@app.route('/get-csv-columns', methods=['POST'])
+def get_csv_columns():
+    """Get column names from CSV file"""
+    try:
+        file = request.files.get('file')
+        
+        if not file:
+            return jsonify({'error': 'No file provided'})
+        
+        # Check file extension
+        if not file.filename.endswith('.csv'):
+            return jsonify({'error': 'Please upload a CSV file'})
+        
+        # Read CSV file
+        df = pd.read_csv(file)
+        
+        # Get column names
+        columns = df.columns.tolist()
+        
+        # Detect potential date columns
+        date_columns = []
+        for col in columns:
+            # Simple heuristic - check column name
+            if any(date_term in col.lower() for date_term in ['date', 'time', 'day', 'month', 'year']):
+                date_columns.append(col)
+            # Try to convert to datetime
+            try:
+                pd.to_datetime(df[col].iloc[0:5])
+                if col not in date_columns:
+                    date_columns.append(col)
+            except:
+                pass
+        
+        # Detect potential text columns
+        text_columns = []
+        for col in columns:
+            # Simple heuristic - check column name
+            if any(text_term in col.lower() for text_term in ['text', 'comment', 'review', 'feedback', 'content', 'message', 'description']):
+                text_columns.append(col)
+            # Check data type - string
+            if df[col].dtype == 'object':
+                # Check average string length
+                avg_len = df[col].astype(str).str.len().mean()
+                if avg_len > 20 and col not in text_columns:
+                    text_columns.append(col)
+        
+        return jsonify({
+            'columns': columns,
+            'potential_date_columns': date_columns,
+            'potential_text_columns': text_columns
+        })
+    except Exception as e:
+        logger.error(f"Error getting CSV columns: {str(e)}")
+        return jsonify({'error': f'Error getting CSV columns: {str(e)}'})
+
+@app.route('/feedback', methods=['POST'])
+def feedback():
+    """Process user feedback for sentiment analysis"""
+    try:
+        data = request.json
+        
+        if not data or 'text' not in data or 'sentiment' not in data:
+            return jsonify({'error': 'Invalid feedback data'})
+        
+        text = data['text']
+        sentiment = data['sentiment']
+        
+        # Store feedback
+        success = analyzer.store_feedback(text, sentiment)
+        
+        if success:
+            return jsonify({'message': 'Feedback submitted successfully'})
+        else:
+            return jsonify({'error': 'Error storing feedback'})
+    except Exception as e:
+        logger.error(f"Error storing feedback: {str(e)}")
+        return jsonify({'error': f'Error storing feedback: {str(e)}'})
+
+@app.errorhandler(404)
+def page_not_found(e):
+    """Handle 404 errors"""
+    return render_template('404.html'), 404
+
+@app.errorhandler(500)
+def server_error(e):
+    """Handle 500 errors"""
+    return render_template('500.html'), 500
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)

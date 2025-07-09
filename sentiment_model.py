@@ -1019,3 +1019,4 @@ class DummySentimentClassifier:
         
         # Return scores as regular Python floats, not numpy types
         return np.array([float(pos_score), float(neut_score), float(neg_score)])
+ 
