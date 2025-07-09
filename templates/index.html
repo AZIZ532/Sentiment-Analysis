@@ -1,0 +1,73 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="header">
+        <h1>Sentiment Analysis</h1>
+        <p>Analyze text for sentiment, emotions, and more</p>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-container">
+                <h2>Analyze Text</h2>
+                <form id="analyze-form">
+                    <div class="mb-3">
+                        <label for="text-input" class="form-label">Enter text to analyze</label>
+                        <textarea class="form-control" id="text-input" rows="5" placeholder="Type or paste text here..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <button type="submit" class="btn btn-primary" id="analyze-button">Analyze</button>
+                            <button type="button" class="btn btn-outline-secondary" id="clear-button">Clear</button>
+                        </div>
+                    </div>
+                    <div class="example-container">
+                        <p>Or try one of these examples:</p>
+                        <button type="button" class="btn btn-sm btn-outline-primary example-text" data-text="The product works exceptionally well. I'm very satisfied with my purchase and would highly recommend it to anyone.">Positive Example</button>
+                        <button type="button" class="btn btn-sm btn-outline-primary example-text" data-text="It's an average product. Does what it's supposed to do, nothing special.">Neutral Example</button>
+                        <button type="button" class="btn btn-sm btn-outline-primary example-text" data-text="This was a terrible experience. The customer service was unhelpful and the product doesn't work as advertised.">Negative Example</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="form-container">
+                <h2>Batch Analysis</h2>
+                <form id="batch-analyze-form">
+                    <div class="mb-3">
+                        <div class="file-upload-container" id="file-upload-container">
+                            <i class="fas fa-file-upload fs-3 mb-2"></i>
+                            <p>Click to select a CSV file or drag and drop</p>
+                            <p class="text-muted small">CSV should have text data for analysis and optionally a date column for time trends</p>
+                            <span id="file-label">Choose CSV file</span>
+                            <input type="file" class="d-none" id="file-input" accept=".csv">
+                        </div>
+                    </div>
+                    
+                    <!-- Column selection container -->
+                    <div id="column-selection-container" style="display: none;"></div>
+                    
+                    <div class="mb-3">
+                        <button type="submit" class="btn btn-primary" id="batch-analyze-button">Analyze CSV</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="error-message" id="error-message"></div>
+    
+    <div class="loader" id="loader" style="display: none;">
+        <div class="spinner-border text-info" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2">Analyzing...</p>
+    </div>
+    
+    <div id="result-container" class="result-container"></div>
+    
+    <div id="batch-results-container" class="result-container"></div>
+</div>
+{% endblock %}

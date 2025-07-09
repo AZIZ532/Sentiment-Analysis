@@ -1,0 +1,293 @@
+/* Custom styles for sentiment analysis app */
+
+/* General styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: var(--bs-light);
+    background-color: var(--bs-dark);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Header styles */
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.header p {
+    font-size: 1.1rem;
+    color: var(--bs-secondary);
+}
+
+/* Form styles */
+.form-container {
+    background-color: var(--bs-dark);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+.form-container h2 {
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+}
+
+.form-label {
+    font-weight: 500;
+}
+
+.form-control {
+    background-color: var(--bs-dark);
+    border-color: var(--bs-secondary);
+    color: var(--bs-light);
+}
+
+.form-control:focus {
+    background-color: var(--bs-dark);
+    color: var(--bs-light);
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+textarea.form-control {
+    min-height: 120px;
+    resize: vertical;
+}
+
+/* Button styles */
+.btn-primary {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+}
+
+/* Sentiment label styles */
+.sentiment-label {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.sentiment-positive {
+    background-color: rgba(25, 135, 84, 0.2);
+    color: #20c997;
+    border: 1px solid rgba(25, 135, 84, 0.4);
+}
+
+.sentiment-neutral {
+    background-color: rgba(13, 110, 253, 0.2);
+    color: #0d6efd;
+    border: 1px solid rgba(13, 110, 253, 0.4);
+}
+
+.sentiment-negative {
+    background-color: rgba(220, 53, 69, 0.2);
+    color: #dc3545;
+    border: 1px solid rgba(220, 53, 69, 0.4);
+}
+
+.confidence-score {
+    font-size: 0.8em;
+    opacity: 0.8;
+    margin-left: 10px;
+}
+
+/* Chart styles */
+.chart-container {
+    position: relative;
+    height: 300px;
+    margin-bottom: 20px;
+}
+
+/* Aspect styles */
+.aspect-container {
+    margin-bottom: 20px;
+}
+
+.aspect-item {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 15px;
+    margin: 5px 5px 5px 0;
+    font-size: 0.9em;
+}
+
+/* Emotion styles */
+.emotion-container {
+    margin-bottom: 20px;
+}
+
+.emotion-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 15px;
+    margin: 5px 5px 5px 0;
+    font-size: 0.9em;
+}
+
+/* Keyword cloud styles */
+.keyword-cloud {
+    margin-bottom: 20px;
+}
+
+.keyword {
+    display: inline-block;
+    margin: 5px;
+    padding: 5px 10px;
+    border-radius: 15px;
+    background-color: var(--bs-dark);
+    transition: transform 0.2s;
+}
+
+.keyword:hover {
+    transform: scale(1.1);
+}
+
+/* File upload styles */
+.file-upload-container {
+    padding: 30px;
+    border: 2px dashed var(--bs-secondary);
+    border-radius: 5px;
+    text-align: center;
+    cursor: pointer;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+}
+
+.file-upload-container:hover {
+    border-color: var(--bs-info);
+    background-color: rgba(13, 202, 240, 0.05);
+}
+
+#file-label {
+    display: block;
+    margin-top: 10px;
+    font-style: italic;
+    color: var(--bs-info);
+}
+
+/* Results container */
+.result-container {
+    background-color: var(--bs-dark);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Example buttons */
+.example-text {
+    margin-right: 10px;
+    margin-bottom: 10px;
+    font-size: 0.9em;
+}
+
+/* Loader */
+.loader {
+    text-align: center;
+    padding: 30px;
+}
+
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* Error message */
+.error-message {
+    display: none;
+    padding: 10px;
+    background-color: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(220, 53, 69, 0.3);
+}
+
+/* Feedback form */
+.feedback-form {
+    padding: 15px;
+    border: 1px solid var(--bs-secondary);
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Word cloud styling */
+#word-cloud-container {
+    padding: 20px;
+    text-align: center;
+    border-radius: 5px;
+    min-height: 300px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+#word-cloud-container .keyword {
+    display: inline-block;
+    margin: 5px;
+    padding: 5px 10px;
+    border-radius: 15px;
+    background-color: var(--bs-dark);
+    transition: transform 0.2s, background-color 0.2s;
+}
+
+#word-cloud-container .keyword:hover {
+    transform: scale(1.1);
+    background-color: var(--bs-primary);
+}
+
+/* Tab styling */
+#batchTabs .nav-link {
+    color: var(--bs-light);
+}
+
+#batchTabs .nav-link.active {
+    background-color: var(--bs-dark);
+    color: var(--bs-info);
+    font-weight: bold;
+}
+
+/* Top reviews styling */
+.list-group-item {
+    background-color: var(--bs-dark);
+    border-color: var(--bs-secondary);
+}
+
+/* Accordion styling */
+.accordion-button {
+    background-color: var(--bs-dark);
+    color: var(--bs-light);
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: rgba(13, 110, 253, 0.1);
+    color: var(--bs-info);
+}
+
+.accordion-button::after {
+    filter: invert(1);
+}
+
+.accordion-body {
+    background-color: var(--bs-dark);
+    color: var(--bs-light);
+}
